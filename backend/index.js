@@ -1,37 +1,41 @@
 import express from "express";
-import { PORT, mongoDBURL } from "./config.js"
 import mongoose from 'mongoose';
-import {Book} from './models/bookModel.js'
-import booksRoute from './routes/booksRoute.js';
 import cors from 'cors';
+
+import { PORT, mongoDBURL } from "./config.js"; 
+import projectsRoute from './routes/projectRoute.js';
+import financesRoute from './routes/financeRoute.js';
+import targetsRoute from './routes/targetRoute.js';
+import teamsRoute from './routes/teamRoute.js';
 
 const app = express();
 
-//Middleware for parsing request body
+// Middleware for parsing request body
 app.use(express.json());
 
-//Middleware for handling CORS POLICY
-// Option 1 : Allow All Origins with Default of cors(*)
+// Middleware for handling CORS policy
 app.use(cors());
 
-app.get('/', (request, response)=> {
-    console.log(request);
-    return response.status(234).send('Welcome to MERN Stack Tutorial');
+app.get('/', (request, response) => {
+    console.log(request); // Normally, you might not want to log the entire request in production!
+    return response.send('Welcome to the Project Tracking App');
 });
 
+// Routes
+app.use('/projects', projectsRoute);
+app.use('/finances', financesRoute);
+app.use('/targets', targetsRoute);
+app.use('/teams', teamsRoute);
 
-
-
-app.use('/books', booksRoute);
-
+// MongoDB connection
 mongoose
-    .connect(mongoDBURL)
-    .then(()=> {
-        console.log('App connected to database');
-        app.listen(PORT, ()=>{
-            console.log(`App is listening to port: ${PORT}`);
+    .connect(mongoDBURL, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => {
+        console.log('Connected to the database');
+        app.listen(PORT, () => {
+            console.log(`Server is running on port: ${PORT}`);
         });
     })
     .catch((error) => {
-        console.log(error);
+        console.error('Error connecting to the database: ', error);
     });
